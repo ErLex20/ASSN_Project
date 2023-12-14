@@ -1,28 +1,17 @@
-function u = control(zita, ydes, f, g, h, degree)
+function u = control(states, y_des, A, b, degree)
+    c10 = 1;
+    c11 = 1;
+    c20 = 1;
+    c21 = 1;
     
-    % passare i vettori g come matrice es: g = [g1, g2];
-    % passare le uscite y come matrice es: h = [h1, h2];
+    syms t
+    M1 = sym('M', [2 1]);
 
-    % costruzione matrice A, in questo caso matrice quadrata 
-
-    n = size(f, 1);
-    m = size(g, 2);
-    A = sym('a', [m, m]);
-    
-    for i = 1:m
-        for j = 1:m
-            %keyboard;
-            A(i, j) = LieDerivative(MultipleLieDerivative(h(i), f, degree(1) - 1 ), g(:,j));
-        end
-        keyboard;
-        b(i) = MultipleLieDerivative(h(i), f, degree(i));
+    for i = 1:2
+        M1(i) = diff(y_des(i), t, degree(i));
     end
-    keyboard;
+    M2 = [-c10*(states(1) - y_des(1)) - c11*(states(2) - diff(y_des(1), t, 1));
+          -c20*(states(3) - y_des(2)) - c21*(states(4) - diff(y_des(2), t, 1))]; 
 
-    % calcolo della matrice b
-
-    
-
-
-
+    u = A\(-b + M1 - M2);
 end

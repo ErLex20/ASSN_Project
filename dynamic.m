@@ -1,10 +1,6 @@
-function dxdt = dynamic(x, u)
-    v = u(1);
-    omega = u(2);
-
-    dx1dt = v * cos(x(3));  % dx/dt = v * cos(theta)
-    dx2dt = v * sin(x(3));  % dy/dt = v * sin(theta)
-    dx3dt = omega;          % dtheta/dt = omega
-
-    dxdt = [dx1dt; dx2dt; dx3dt];
+function dzitadt = dynamic(zita, u)
+    dzitadt(1) = zita(2);
+    dzitadt(2) = u(1);
+    dzitadt(3) = zita(4);
+    dzitadt(4) = u(2);
 end

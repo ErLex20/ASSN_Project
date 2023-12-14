@@ -8,8 +8,8 @@ function L = LieDerivative(lambda, f)
         L = dlambda_dx*f;
     else
         variables = sym('x',[1,n-1]);
-        syms zita
-        variables = [variables zita];
+        syms csi
+        variables = [variables csi];
         dlambda_dx = jacobian(lambda,variables);
         L = dlambda_dx*f;
     end

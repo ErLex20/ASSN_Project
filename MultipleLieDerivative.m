@@ -9,6 +9,4 @@ function L_f_k = MultipleLieDerivative(lambda, f, k)
 
     L_f_k = appoggio;
 
-
-
 end

@@ -1,17 +1,19 @@
-function y_des = genTrajectory(p, max_iterations, trajectory, laps, center, r)
+function y_des = genTrajectory(p, trajectory)
 
-y_des = zeros(p, max_iterations);
+Ax = 1;
+Ay = 1;
+omega_x = 1;
+omega_y = 2;
+phi_x = 0;
+phi_y = 0;
+
+syms t
+y_des = sym('y', [p 1]);
 
 switch trajectory
-
-    case "Circle" % Circle
-        theta = linspace(0, laps*2*pi, max_iterations);
-        for i = 1:max_iterations
-            y_des(1, i) = center(1, 1) + r*cos(theta(i));
-            y_des(2, i) = center(2, 1) + r*sin(theta(i));
-        end
-
     case "8 Circle" % 8 Circle
+        y_des(1) = Ax * sin(omega_x * t + phi_x);
+        y_des(2) = Ay * sin(omega_y * t + phi_y);
 
     otherwise
         disp('Trajectory not valid');
