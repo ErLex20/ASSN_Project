@@ -7,7 +7,9 @@ function L = LieDerivative(lambda, f)
         dlambda_dx = diff(lambda,x);
         L = dlambda_dx*f;
     else
-        variables = sym('x',[1,n]);
+        variables = sym('x',[1,n-1]);
+        syms zita
+        variables = [variables zita];
         dlambda_dx = jacobian(lambda,variables);
         L = dlambda_dx*f;
     end
