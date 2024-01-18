@@ -4,28 +4,28 @@ close all
 
 %% Pre-Processing dati
 
-x_quota = out.x_quota.Data;
+x_height = out.x_height.Data;
 x_pitch = out.x_pitch.Data;
 
 %% Simulazione
 
-axis = "YZ";
+axis = "XYZ";
 
-for i=1:size(x_quota,1)
-    h = x_quota(i, 1);
-    y = x_pitch(i, 1);
+for i=1:size(x_height,1)
+    h = x_height(i, 1);
+    x = x_pitch(i, 1);
     theta = x_pitch(i, 3);
-    disegna_cubo_orientabile(h, y, theta, axis);
+    disegna_cubo_orientabile(h, x, theta, axis);
 end
 
-function disegna_cubo_orientabile(z, y, angolo_pitch, axis)
+function disegna_cubo_orientabile(z, x, theta, axis)
     % Dimensioni del cubo
     lunghezza_lati = 2;
     lunghezza_braccio = 2;
     altezza_eli = 0;
 
     % Coordinate del centro del cubo
-    x = 0;
+    y = 0;
 
     % Vertici del cubo non orientato
     vertici_cubo = [
@@ -40,7 +40,9 @@ function disegna_cubo_orientabile(z, y, angolo_pitch, axis)
     ];
 
     % Matrice di rotazione per l'angolo di pitch
-    rotazione_pitch = [cos(angolo_pitch), -sin(angolo_pitch), 0; sin(angolo_pitch), cos(angolo_pitch), 0; 0, 0, 1];
+    rotazione_pitch = [+cos(theta),          0,     +sin(theta);
+                                0,           1,               0; 
+                       -sin(theta),          0,     +cos(theta)];
 
     % Applica la rotazione ai vertici del cubo
     vertici_cubo_rotati = (rotazione_pitch * vertici_cubo')';
@@ -64,18 +66,21 @@ function disegna_cubo_orientabile(z, y, angolo_pitch, axis)
     plot3([vertici_cubo_rotati(4, 1), vertici_cubo_rotati(8, 1)], [vertici_cubo_rotati(4, 2), vertici_cubo_rotati(8, 2)], [vertici_cubo_rotati(4, 3), vertici_cubo_rotati(8, 3)], 'b-', 'LineWidth', 2);
 
      % Disegna le eliche del drone
-    disegna_elica(x, y, z, +lunghezza_braccio, altezza_eli, angolo_pitch);
-    disegna_elica(x, y, z, -lunghezza_braccio, altezza_eli, angolo_pitch);
+    disegna_elica(x, y, z, +lunghezza_braccio, altezza_eli, theta);
+    disegna_elica(x, y, z, -lunghezza_braccio, altezza_eli, theta);
 
-    title("3D Plot of Drone Control");
+    title("Plot of Drone Control");
     xlim([-10 10]);
     ylim([-10 10]);
     zlim([-5 15]);
+    xlabel("X axis");
+    ylabel("Y axis");
+    zlabel("Z axis");
     grid on
     hold off
     
-    if (strcmp(axis, "YZ") == 1)
-        view(90, 0);
+    if (strcmp(axis, "XZ") == 1)
+        view(0, 0);
     elseif (strcmp(axis, "XYZ") == 1)
         view(45, 45);
     else
@@ -83,12 +88,15 @@ function disegna_cubo_orientabile(z, y, angolo_pitch, axis)
     end
 end
 
-function disegna_elica(x, y, z, lunghezza_braccio, altezza_eli, angolo_pitch)
+function disegna_elica(x, y, z, lunghezza_braccio, altezza_eli, theta)
     % Posizioni delle eliche
     posizione_elica = [x, y + lunghezza_braccio, z + altezza_eli];
 
     % Rotazione delle posizioni delle eliche in base all'angolo di pitch
-    rotazione_pitch = [cos(angolo_pitch), -sin(angolo_pitch), 0; sin(angolo_pitch), cos(angolo_pitch), 0; 0, 0, 1];
+    rotazione_pitch = [+cos(theta),          0,     +sin(theta);
+                                0,           1,               0; 
+                       -sin(theta),          0,     +cos(theta)];
+    
     posizione_elica_rotata = (rotazione_pitch * posizione_elica')';
 
     % Raggio del cerchio dell'elica
@@ -100,12 +108,14 @@ function disegna_elica(x, y, z, lunghezza_braccio, altezza_eli, angolo_pitch)
     % Angoli per disegnare il cerchio
     angoli = linspace(0, 2*pi, num_punti);
 
-    % Coordinate dei cerchi
-    cerchio_x = posizione_elica_rotata(1) + raggio_cerchio * cos(angoli);
-    cerchio_y = posizione_elica_rotata(2) + raggio_cerchio * sin(angoli);
-    cerchio_z = posizione_elica_rotata(3) * ones(1, num_punti);
+     % Applica la rotazione ai punti del cerchio
+    cerchio_rotato = rotazione_pitch * [raggio_cerchio * cos(angoli); raggio_cerchio * sin(angoli); zeros(1, num_punti)];
 
-    % Disegna i cerchi
-    plot3(cerchio_x, cerchio_y, cerchio_z, 'r-', 'LineWidth', 2);
+    % Trasla i punti del cerchio alla posizione corretta
+    cerchio_rotato = bsxfun(@plus, cerchio_rotato, posizione_elica_rotata');
+
+    % Disegna il cerchio
+    plot3(cerchio_rotato(1, :), cerchio_rotato(2, :), cerchio_rotato(3, :), 'r-', 'LineWidth', 2);
+
 end
 
